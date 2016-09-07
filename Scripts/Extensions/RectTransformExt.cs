@@ -84,24 +84,29 @@ public static class RectTransformExt {
 
 	public static void SetHeight(this RectTransform trans, float Height)
 	{
-		//RectTransform parent = trans.parent as RectTransform;
+        
 		Vector2 offsetMin = trans.offsetMin;
 		Vector2 offsetMax = trans.offsetMax;
-		//float anchorMin = (parent.Height() * (1 - trans.anchorMin.y));
 		float diff = trans.Height() - Height;
 		offsetMin.y += diff;
 
 		trans.offsetMin = offsetMin;
 	}
 
+    public static void SetHeightBottomAnchored(this RectTransform trans, float Height) {
+
+        trans.sizeDelta = new Vector2(trans.sizeDelta.x, Height);
+    }
+
     public static void SetWidth(this RectTransform trans, float Width)
     {
-        //Vector2 offsetMin = trans.offsetMin;
+        /*
         Vector2 offsetMax = trans.offsetMax;
         float diff = trans.Width() - Width;
         offsetMax.x -= diff;
 
-        trans.offsetMax = offsetMax;
+        trans.offsetMax = offsetMax;*/
+        trans.sizeDelta = new Vector2(Width, trans.sizeDelta.y);
     }
 
     public static void FitToParent(this RectTransform trans) {
