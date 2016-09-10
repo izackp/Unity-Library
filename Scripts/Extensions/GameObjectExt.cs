@@ -11,7 +11,13 @@ public static class GameObjectExt {
         {
             prefab = Resources.Load<GameObject>(path);
             if (prefab == null) {
-                path = ResourceDB.GetAsset(prefabName).ResourcesPath;
+                try {
+                    path = ResourceDB.GetAsset(prefabName).ResourcesPath;
+                }
+                catch {
+                    Debug.LogWarning("There was a problem reading the Resource Database. Please update the db.");
+                    return null;
+                }
                 prefab = Resources.Load<GameObject>(path);
             }
 
