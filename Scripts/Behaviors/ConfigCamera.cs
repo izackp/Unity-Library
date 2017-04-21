@@ -1,66 +1,75 @@
 ﻿using UnityEngine;
 
 public class ConfigCamera : MonoBehaviour {
-	
-	public float fZoom = 0;
-	float pixelsPerUnit = 1.0f;
-	public float ScreenHeight;
-	public float ScreenWidth;
-    Rect bounds;
-	
-	void LateUpdate () {
-		//pixel perfect = (Screen.height * 0.5f) / 100
-		ScreenHeight = Screen.height;
-		ScreenWidth = Screen.width;
-        
 
-		fZoom += (Input.GetAxis("Mouse ScrollWheel") * 5.0f);
+    public float Zoom = 1.0f;
+    float _pixelsPerUnit = 1.0f; //Set this to whatever you set for your texture
+    public float ScreenWidth; //For Debugging
+    public float ScreenHeight; //For Debugging
+    Rect _bounds;
 
-        if (fZoom < MinZoom())
-            fZoom = MinZoom();
-		
-		float s_baseOrthographicSize = (Screen.height * 0.5f - fZoom) / pixelsPerUnit;
-		s_baseOrthographicSize = s_baseOrthographicSize - (s_baseOrthographicSize % 2);
-		Camera.main.orthographicSize = s_baseOrthographicSize;
+    void Start() {
+        int numTilesWidth = 40;
+        int numTilesHeight = 40;
+        int tileWidth = 16;
+        int tileHeight = 16;
+        int mapWidth = numTilesWidth * tileWidth;
+        int mapHeight = numTilesHeight * tileHeight;
+        SetBounds(new Rect(0, 0, mapWidth, mapHeight * -1));
+    }
 
-        var vertExtent = s_baseOrthographicSize;
-        var horzExtent = vertExtent * ScreenWidth / ScreenHeight;
+    void LateUpdate() {
+        float screenHeight = Screen.height;
+        float screenWidth = Screen.width;
 
+        //Only For Debugging
+        ScreenWidth = screenWidth;
+        ScreenHeight = screenHeight;
+
+        Zoom += (Input.GetAxis("Mouse ScrollWheel") * 5.0f);
+        float minZoom = MinZoom(screenWidth, screenHeight);
+        if (Zoom < minZoom)
+            Zoom = minZoom;
+
+        //Determine camera size based on screen height, zoom, and pixels per unit
+        float baseOrthographicSize = (Screen.height * 0.5f - Zoom) / _pixelsPerUnit;
+        baseOrthographicSize = baseOrthographicSize - (baseOrthographicSize % 2); //We round it down so its divisble by 2 //Ex: 13 - (13%2) = 12
+        Camera.main.orthographicSize = baseOrthographicSize;
+
+        float vertExtent = baseOrthographicSize;
+        float horzExtent = vertExtent * screenWidth / screenHeight;
+
+        //Establish bounds so the camera doesn't go offscreen
         // Calculations assume map is position at the origin
-        float minX = bounds.x + horzExtent;
-        float maxX = bounds.xMax - horzExtent;
-        float minY = bounds.yMax + vertExtent;
-        float maxY = bounds.y - vertExtent;
+        float minX = _bounds.x + horzExtent;
+        float maxX = _bounds.xMax - horzExtent;
+        float minY = _bounds.yMax + vertExtent;
+        float maxY = _bounds.y - vertExtent;
 
+        //Keep camera from leaving bounds
         var v3 = transform.position;
         v3.x = Mathf.Clamp(v3.x, minX, maxX);
         v3.y = Mathf.Clamp(v3.y, minY, maxY);
         transform.position = v3;
     }
 
-    public float MaxCamSize()
-    {//4:3 ratio is 1.33, reverse is .75
-        //H:3 W:4 - MW:2
-        //maxVert = 1.5
-        //maxVert2 = 0.75
-        float screenRatio = ScreenWidth / ScreenHeight;
-        float maxVert = Mathf.Abs(bounds.height) / 2;
-        float maxVert2 = bounds.width / screenRatio / 2;
+    public float MaxCamSize(float screenWidth, float screenHeight) {
+        float screenRatio = screenWidth / screenHeight;
+        float maxVert = Mathf.Abs(_bounds.height) * 0.5f;
+        float maxVert2 = _bounds.width / screenRatio * 0.5f;
         return (maxVert < maxVert2) ? maxVert : maxVert2;
     }
 
-    public float MinZoom()
-    {
-        float maxCamSize = MaxCamSize();
+    public float MinZoom(float screenWidth, float screenHeight) {
+        float maxCamSize = MaxCamSize(screenWidth, screenHeight);
         return Screen.height * 0.5f - maxCamSize;
     }
 
-	public void OffsetZoom (float magnitude) {
-		fZoom += magnitude;
-	}
+    public void OffsetZoom(float magnitude) {
+        Zoom += magnitude;
+    }
 
-    public void SetBounds(Rect bounds)
-    {
-        this.bounds = bounds;
+    public void SetBounds(Rect bounds) {
+        _bounds = bounds;
     }
 }
