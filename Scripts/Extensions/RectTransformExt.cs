@@ -1,7 +1,71 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public enum RectAnchor {
+    Left,
+    Right,
+    XCenter,
+    XStretch,
+    Top,
+    Bottom,
+    YCenter,
+    YStretch
+}
+
+public static class RectAnchorExt {
+    public static float Min(this RectAnchor anchor) {
+        switch (anchor) {
+            case RectAnchor.Left:
+            case RectAnchor.XStretch:
+            case RectAnchor.Bottom:
+            case RectAnchor.YStretch:
+                return 0.0f;
+
+            case RectAnchor.Right:
+            case RectAnchor.Top:
+                return 1.0f;
+
+            case RectAnchor.XCenter:
+            case RectAnchor.YCenter:
+                return 0.5f;
+        }
+        return 0.0f;
+    }
+
+    public static float Max(this RectAnchor anchor) {
+        switch (anchor) {
+            case RectAnchor.Left:
+            case RectAnchor.Bottom:
+                return 0.0f;
+
+            case RectAnchor.XStretch:
+            case RectAnchor.YStretch:
+            case RectAnchor.Right:
+            case RectAnchor.Top:
+                return 1.0f;
+
+            case RectAnchor.XCenter:
+            case RectAnchor.YCenter:
+                return 0.5f;
+        }
+        return 0.0f;
+    }
+
+    public static bool IsX(this RectAnchor anchor) {
+        switch (anchor) {
+            case RectAnchor.Left:
+            case RectAnchor.Right:
+            case RectAnchor.XStretch:
+            case RectAnchor.XCenter:
+                return true;
+        }
+        return false;
+    }
+}
+
 public static class RectTransformExt {
+
+    
 
 	public static float X(this RectTransform trans)
 	{
@@ -31,7 +95,7 @@ public static class RectTransformExt {
 	public static float BottomSide(this RectTransform trans) {
 		RectTransform parent = trans.parent as RectTransform;
 
-		float anchorPos = (parent.Height() * (1 - trans.anchorMin.y));
+		float anchorPos = (parent.Height() * (trans.anchorMin.y * -1));
 		float result = anchorPos + trans.offsetMin.y;
 
 		return result;
@@ -50,8 +114,8 @@ public static class RectTransformExt {
 	public static float BottomPadding(this RectTransform trans) {
 		RectTransform parent = trans.parent as RectTransform;
 
-		float anchorPos = (parent.Height() * (1 - trans.anchorMin.y));
-		return (trans.offsetMin.y - anchorPos) * -1;
+		float anchorPos = (parent.Height() * (trans.anchorMin.y * -1));
+		return (trans.offsetMin.y - anchorPos);
 		
 		//or return parent.Height() - BottomSide();
 	}
@@ -131,17 +195,19 @@ public static class RectTransformExt {
 		return trans.rect.height;
 	}
 
-	public static void SetRightPadding(this RectTransform trans, float padding) {
-//		RectTransform parent = trans.parent as RectTransform;
-//
-//		float anchorMaxXPosInverse = (parent.Width() * (1 - trans.anchorMax.x));
-//		return (trans.offsetMax.x - anchorMaxXPosInverse) * -1;
-//		
-		//or return parent.Width() - RightSide();
-	}
+    public static void SetAnchor(this RectTransform trans, RectAnchor anchor) {
+        if (anchor.IsX()) {
+            trans.anchorMin = new Vector2(anchor.Min(), trans.anchorMin.y);
+            trans.anchorMax = new Vector2(anchor.Max(), trans.anchorMax.y);
+        }
+        else {
+            trans.anchorMin = new Vector2(trans.anchorMin.x, anchor.Min());
+            trans.anchorMax = new Vector2(trans.anchorMax.y, anchor.Max());
+        }
+    }
 
-	//Useful logging
-	static Vector2 anchorMax;
+    //Useful logging
+    static Vector2 anchorMax;
 	static Vector2 lastAnchor;
 	static Vector2 anchorMin;
 	static Vector2 offsetMin;
