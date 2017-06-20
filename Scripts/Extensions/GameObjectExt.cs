@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using CSharp_Library.Extensions;
+using UnityEngine.UI;
 
 public static class GameObjectExt {
 
@@ -36,5 +37,20 @@ public static class GameObjectExt {
             _dicPrefabCache[prefabName] = prefab;
         }
         return prefab;
+    }
+
+    public static GameObject CreatePanel(string name, Color color, Transform parent, RectAnchor anchorX, RectAnchor anchorY) {
+        GameObject go = new GameObject(name);
+        go.AddComponent<CanvasRenderer>();
+        RectTransform trans = go.AddComponent<RectTransform>();
+        Image img = go.AddComponent<Image>();
+        img.color = color;
+
+        trans.SetParent(parent);
+        trans.SetAnchor(anchorX);
+        trans.SetAnchor(anchorY);
+        trans.offsetMin = Vector2.zero;
+        trans.offsetMax = Vector2.zero;
+        return go;
     }
 }

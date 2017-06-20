@@ -164,13 +164,11 @@ public static class RectTransformExt {
 
     public static void SetWidth(this RectTransform trans, float Width)
     {
-        /*
         Vector2 offsetMax = trans.offsetMax;
         float diff = trans.Width() - Width;
         offsetMax.x -= diff;
 
-        trans.offsetMax = offsetMax;*/
-        trans.sizeDelta = new Vector2(Width, trans.sizeDelta.y);
+        trans.offsetMax = offsetMax;
     }
 
     public static void FitToParent(this RectTransform trans) {
@@ -202,7 +200,7 @@ public static class RectTransformExt {
         }
         else {
             trans.anchorMin = new Vector2(trans.anchorMin.x, anchor.Min());
-            trans.anchorMax = new Vector2(trans.anchorMax.y, anchor.Max());
+            trans.anchorMax = new Vector2(trans.anchorMax.x, anchor.Max());
         }
     }
 
