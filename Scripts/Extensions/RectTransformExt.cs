@@ -93,12 +93,27 @@ public static class RectTransformExt {
 	}
 
 	public static float BottomSide(this RectTransform trans) {
+
+        /*
+		float anchorMaxYPos = (parent.Height() * (1 - trans.anchorMax.y));
+		return trans.offsetMax.y - anchorMaxYPos;
+        */
 		RectTransform parent = trans.parent as RectTransform;
+        //20k * (0.5)
+        //10k + - 1000
+        //9k
+        //20k - 9k = 11k
 
-		float anchorPos = (parent.Height() * (trans.anchorMin.y * -1));
-		float result = anchorPos + trans.offsetMin.y;
+        //442 * (-100*-1)
+        /*
+        float parentHeight = parent.Height();
+        float anchorPos = parentHeight * trans.anchorMin.y;
+		float result = parentHeight - (anchorPos + trans.offsetMin.y);*/
 
-		return result;
+        float anchorMinYPos = (parent.Height() * (1 - trans.anchorMin.y));
+        float result = trans.offsetMin.y - anchorMinYPos;
+
+        return result;
 		//or (trans.Height() + trans.Y());
 	}
 
