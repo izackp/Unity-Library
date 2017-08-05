@@ -15,4 +15,11 @@ public static class MonoBehaviourExt {
             return null;
         return behavior.transform as RectTransform;
     }
+
+    public static T FindOrAddComponent<T>(this GameObject parent) where T : Component {
+        T comp = parent.GetComponent<T>();
+        if (comp == null)
+            comp = parent.AddComponent<T>();
+        return comp;
+    }
 }
